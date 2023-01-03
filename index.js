@@ -52,9 +52,12 @@ async function run() {
       const emails = req.query.email;
       console.log(emails);
       const query = { email: emails };
-      const result = await myposts.find(query).toArray();
+      const result = await myposts.find(query).sort({date:-1}).toArray();
       res.send(result);
     });
+
+    
+
   } finally {
   }
 }
