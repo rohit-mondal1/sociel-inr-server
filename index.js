@@ -27,14 +27,12 @@ async function run() {
     // user post in dt
     app.post("/userss", async (req, res) => {
       const body = req.body;
-
       const result = await myusers.insertOne(body);
       res.send(result);
     });
     // get the display users
     app.get("/user", async (req, res) => {
       const email = req.query.email;
-      console.log('email', email )
       const query = { email: email };
       const result = await myusers.findOne(query);
       res.send(result);
@@ -50,11 +48,19 @@ async function run() {
     // get the post in user see
     app.get("/posts", async (req, res) => {
       const emails = req.query.email;
-      console.log(emails);
+    
       const query = { email: emails };
       const result = await myposts.find(query).sort({date:-1}).toArray();
       res.send(result);
     });
+
+    // update like and count
+    app.put(("updatelike") , async(req , res)=>{
+
+      const id = req.query.id;
+      console.log(id);
+
+    })
 
     
 
