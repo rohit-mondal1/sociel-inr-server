@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 8000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 app.use(cors());
 app.use(express.json());
@@ -12,13 +12,13 @@ app.use(express.json());
 
 // mongodb conpale
 
-
-
-
-const uri = "mongodb+srv://Socielinr:i0tY89pk9AfXdH1F@cluster0.zruk5xh.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-
-
+const uri =
+  "mongodb+srv://Socielinr:i0tY89pk9AfXdH1F@cluster0.zruk5xh.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+});
 
 async function run() {
   try {
@@ -38,7 +38,6 @@ async function run() {
       res.send(result);
     });
 
-
     // posts  in dt
     app.post("/posts", async (req, res) => {
       const bodys = req.body;
@@ -48,22 +47,47 @@ async function run() {
     // get the post in user see
     app.get("/posts", async (req, res) => {
       const emails = req.query.email;
-    
+
       const query = { email: emails };
-      const result = await myposts.find(query).sort({date:-1}).toArray();
+      const result = await myposts.find(query).sort({ date: -1 }).toArray();
       res.send(result);
     });
 
     // update like and count
-    app.put(("updatelike") , async(req , res)=>{
+    app.put("/like/:id", async (req, res) => {
+      const bodyemail = req.body;
+      const email = bodyemail.email;
+      const id = req.params.id;
+      const getpostquery = { _id: ObjectId(id) };
 
-      const id = req.query.id;
-      console.log(id);
+      const getpost = await myposts.findOne(getpostquery);
+      const { like } = getpost;
 
-    })
+      for (const aa of like) {
+        console.log(aa);
+        if (aa === email) {
+          console.log('object');
+          return;
+        }
+          
+      }
 
-    
+      const option = { upsert: true };
+      const updaterev = {
+        $set: {
+          like: [...like ,email],
+        },
+      };
+      const result = await myposts.updateOne(getpostquery, updaterev, option);
+      res.send(result);
 
+    });
+
+    // get the post in user see
+    app.get("/allpost", async (req, res) => {
+      const result = await myposts.find({}).sort({ date: -1 }).toArray();
+      res.send(result);
+    });
   } finally {
   }
 }
